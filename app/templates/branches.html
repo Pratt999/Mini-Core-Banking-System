@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Branches - Banking System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; margin-left: 1rem; }
+        .nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn { padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+        table, .empty-state { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .empty-state { text-align: center; padding: 3rem; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ Branches</h1>
+        <div class="nav">
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.customers') }}">Customers</a>
+            <a href="{{ url_for('main.accounts') }}">Accounts</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Branch Management</h2>
+            <a href="#" class="btn" onclick="alert('Add branch form coming soon!')">+ Add Branch</a>
+        </div>
+        
+        {% if branches %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Branch Code</th>
+                        <th>Name</th>
+                        <th>Manager</th>
+                        <th>Address</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for branch in branches %}
+                    <tr>
+                        <td><strong>{{ branch.branch_code }}</strong></td>
+                        <td>{{ branch.branch_name }}</td>
+                        <td>{{ branch.manager_name or 'N/A' }}</td>
+                        <td>{{ branch.address or 'N/A' | truncate(40) }}</td>
+                        <td>{{ branch.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <h3>🏛️ No branches yet</h3>
+                <p>Add branches to your banking network!</p>
+                <a href="#" class="btn" onclick="alert('Add branch form coming soon!')">+ Add First Branch</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

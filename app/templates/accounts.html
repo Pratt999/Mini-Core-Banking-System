@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accounts - Banking System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; margin-left: 1rem; }
+        .nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn { padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+        .btn:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .balance { font-weight: bold; color: #28a745; }
+        .empty-state { text-align: center; padding: 3rem; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💳 Accounts</h1>
+        <div class="nav">
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.customers') }}">Customers</a>
+            <a href="{{ url_for('main.branches') }}">Branches</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Account Management</h2>
+            <a href="#" class="btn" onclick="alert('Add account form coming soon!')">+ Add Account</a>
+        </div>
+        
+        {% if accounts %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account No.</th>
+                        <th>Customer</th>
+                        <th>Balance</th>
+                        <th>Type</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td><strong>{{ account.account_number }}</strong></td>
+                        <td>{{ account.customer.name }}</td>
+                        <td><span class="balance">₹{{ "%.2f"|format(account.balance) }}</span></td>
+                        <td>{{ account.account_type }}</td>
+                        <td>{{ account.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <button onclick="alert('View: {{ account.account_number }}')" class="btn" style="background: #007bff; padding: 5px 10px; font-size: 12px;">View</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <h3>💳 No accounts yet</h3>
+                <p>Create accounts for your customers!</p>
+                <a href="#" class="btn" onclick="alert('Add account form coming soon!')">+ Add First Account</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

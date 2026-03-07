@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <h3 class="total-customers">{{ total_customers }}</h3>
+    <p>Customers</p>
+  </div>
+  <div class="stat-card">
+    <h3 class="total-accounts">{{ total_accounts }}</h3>
+    <p>Accounts</p>
+  </div>
+  <div class="stat-card">
+    <h3 class="total-balance">{{ "%.2f"|format(total_balance) }}</h3>
+    <p>Total Balance (₹)</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Quick Actions</h3>
+  <p>Use these shortcuts during demo/viva:</p>
+  <ul>
+    <li>Ctrl + 1 → Dashboard</li>
+    <li>Ctrl + 2 → New Customer</li>
+    <li>Ctrl + 3 → Accounts</li>
+  </ul>
+</div>
+{% endblock %}

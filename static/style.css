@@ -1,0 +1,18 @@
+body.dark-mode {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark-mode nav {
+  background: rgba(15,23,42,0.95);
+}
+
+body.dark-mode .card {
+  background: rgba(15,23,42,0.98);
+  border-color: rgba(148,163,184,0.4);
+}
+
+body.dark-mode table {
+  background: #020617;
+  color: #e5e7eb;
+}

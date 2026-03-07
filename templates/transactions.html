@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Transactions</h2>
+
+<div class="card">
+  {% if txns|length == 0 %}
+    <p>No transactions yet.</p>
+  {% else %}
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Amount</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Remarks</th>
+      </tr>
+      {% for t in txns %}
+      <tr>
+        <td>{{ t.txn_id }}</td>
+        <td class="
+          {% if t.txn_type == 'DEPOSIT' %}deposit
+          {% elif t.txn_type == 'WITHDRAW' %}withdraw
+          {% elif t.txn_type == 'TRANSFER' %}transfer
+          {% endif %}
+        ">{{ t.txn_type }}</td>
+        <td>{{ t.from_account_id or '-' }}</td>
+        <td>{{ t.to_account_id or '-' }}</td>
+        <td class="balance" data-value="{{ t.amount }}">{{ t.amount }}</td>
+        <td>{{ t.timestamp }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.remarks }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="printReport()">Print</button>
+  {% endif %}
+</div>
+{% endblock %}

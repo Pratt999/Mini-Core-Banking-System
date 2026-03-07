@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Accounts</h2>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Customer</th>
+      <th>Type</th>
+      <th>Balance</th>
+      <th>Actions</th>
+    </tr>
+    {% for a in accounts %}
+    <tr>
+      <td>{{ a.account_id }}</td>
+      <td>{{ a.customer.name }}</td>
+      <td>{{ a.account_type }}</td>
+      <td class="balance" data-value="{{ a.balance }}">{{ a.balance }}</td>
+      <td>
+        <form method="post" action="{{ url_for('api.deposit', account_id=a.account_id) }}" style="display:inline-block; margin-right: 5px;">
+          <input name="amount" placeholder="Amount" size="6">
+          <button type="submit">Deposit</button>
+        </form>
+        <form method="post" action="{{ url_for('api.withdraw', account_id=a.account_id) }}" style="display:inline-block;">
+          <input name="amount" placeholder="Amount" size="6" data-max-balance="{{ a.balance }}">
+          <button type="submit">Withdraw</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h3>Transfer Money</h3>
+  <form method="post" action="{{ url_for('api.transfer') }}">
+    <label>From Account ID
+      <input name="from_account_id" required>
+    </label>
+    <label>To Account ID
+      <input name="to_account_id" required>
+    </label>
+    <label>Amount
+      <input name="amount" required>
+    </label>
+    <button type="submit">Transfer</button>
+  </form>
+</div>
+{% endblock %}
