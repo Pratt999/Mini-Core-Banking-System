@@ -64,7 +64,11 @@ class Account(db.Model):
     status = db.Column(db.String(20), default='active')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    transactions = db.relationship('Transaction', backref='account', lazy=True, cascade="all, delete-orphan")
+    transactions = db.relationship('Transaction', 
+                                   foreign_keys='Transaction.account_id',
+                                   backref='account', 
+                                   lazy=True, 
+                                   cascade="all, delete-orphan")
 
 class Transaction(db.Model):
     __tablename__ = 'transactions'
