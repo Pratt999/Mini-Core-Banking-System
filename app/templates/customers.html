@@ -1,122 +1,122 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Customers - Banking System</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
-        .header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            padding: 1rem 2rem; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        .nav a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 5px; 
-            transition: background 0.3s; 
-            margin-left: 1rem; 
-        }
-        .nav a:hover { background: rgba(255,255,255,0.2); }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .btn { 
-            padding: 12px 24px; 
-            background: #28a745; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 5px; 
-            font-weight: 500;
-        }
-        .btn:hover { background: #218838; }
-        .btn-danger { background: #dc3545; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        tr:hover { background: #f8f9fa; }
-        .empty-state { text-align: center; padding: 4rem 2rem; color: #666; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .flash-success { background: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; border-left: 4px solid #28a745; margin-bottom: 1rem; }
-        .flash-error { background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; border-left: 4px solid #dc3545; margin-bottom: 1rem; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div>
-            <h1>👥 Customers</h1>
-            <span style="font-size: 0.9rem;">Manage your customer database</span>
+{% extends "base.html" %}
+
+{% block title %}Customers | NexusCore{% endblock %}
+{% block page_title %}Customer Management{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <form class="position-relative" onsubmit="event.preventDefault(); filterTable();">
+                    <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                    <input type="text" id="searchInput" class="form-control form-control-lg ps-5 bg-light border-0" onkeyup="filterTable()" placeholder="Search by name, email, or ID (AI matching ready)...">
+                </form>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-outline-secondary me-2"><i class="bi bi-download"></i> Export CSV</button>
+                <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary"><i class="bi bi-person-plus"></i> Onboard Retail Client</a>
+            </div>
         </div>
-        <div class="nav">
-            <a href="{{ url_for('main.dashboard') }}">📊 Dashboard</a>
-            <a href="{{ url_for('main.accounts') }}">💳 Accounts</a>
-            <a href="{{ url_for('main.branches') }}">🏛️ Branches</a>
-            <a href="{{ url_for('main.logout') }}">🚪 Logout</a>
-        </div>
-    </div>
-    
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; text-align: center;">
-            <h3>Total Customers: {{ customers|length }}</h3>
-        </div>
-        
-        <div class="page-header">
-            <h2>Customer Directory</h2>
-            <!-- ✅ FIXED ROUTE NAME -->
-            <a href="/customer/add" class="btn">➕ Add New Customer</a>
-        </div>
-        
-        {% if customers %}
-            <table>
-                <thead>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="customerTable">
+                <thead class="table-light">
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>Client Profile</th>
+                        <th>Contact info</th>
+                        <th>Accounts</th>
+                        <th>Total Holdings</th>
+                        <th>AI Risk Profile</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for customer in customers %}
-                    <tr>
-                        <td><strong>{{ customer.customer_id }}</strong></td>
-                        <td>{{ customer.name }}</td>
-                        <td>{{ customer.email or '📧 N/A' }}</td>
-                        <td>{{ customer.phone or '📞 N/A' }}</td>
-                        <td>{{ customer.address or '🏠 N/A' | truncate(30) }}</td>
-                        <td>{{ customer.created_at.strftime('%d %b %Y') or 'N/A' }}</td>
+                    {% for c in customers %}
+                    <tr class="customer-row">
                         <td>
-                            <!-- ✅ FIXED DELETE ROUTE -->
-                            <form method="POST" action="/customer/{{ customer.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete {{ customer.name }}?');">
-                                <button type="submit" class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;">🗑️ Delete</button>
-                            </form>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ c.name }}&background=random" class="rounded-circle me-3" width="40" height="40">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ c.name }}</h6>
+                                    <small class="text-muted font-monospace">{{ c.customer_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small"><i class="bi bi-envelope text-muted"></i> {{ c.email }}</div>
+                            <div class="small"><i class="bi bi-telephone text-muted"></i> {{ c.phone }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ c.accounts|length }} Active</span>
+                        </td>
+                        <td>
+                            {% set total = namespace(value=0) %}
+                            {% for a in c.accounts %}
+                                {% set total.value = total.value + a.balance %}
+                            {% endfor %}
+                            <span class="fw-bold">${{ "{:,.2f}".format(total.value) }}</span>
+                        </td>
+                        <td>
+                            <!-- Mock AI Churn Risk -->
+                            {% if c.risk_score > 0.7 %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-exclamation-triangle"></i> High Risk</span>
+                            {% elif c.risk_score > 0.3 %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning"><i class="bi bi-activity"></i> Med Risk</span>
+                            {% else %}
+                                <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-shield-check"></i> Stable</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Manage
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2 text-muted"></i> View 360° Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('main.add_account') }}"><i class="bi bi-wallet2 me-2 text-muted"></i> Add Account</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-person-x me-2"></i> Freeze Account</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" width="120" class="mb-3 opacity-50" alt="No Data">
+                            <h5 class="text-muted">No clients found</h5>
+                            <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary mt-3">Onboard First Client</a>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
-            <div class="empty-state">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">👥</div>
-                <h3>No customers yet</h3>
-                <p>Add your first customer to get started!</p>
-                <a href="/customer/add" class="btn">➕ Add First Customer</a>
-            </div>
-        {% endif %}
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterTable() {
+    let input = document.getElementById('searchInput');
+    let filter = input.value.toUpperCase();
+    let table = document.getElementById("customerTable");
+    let tr = table.getElementsByClassName('customer-row');
+
+    for (let i = 0; i < tr.length; i++) {
+        let nameCol = tr[i].getElementsByTagName("td")[0];
+        let contactCol = tr[i].getElementsByTagName("td")[1];
+        if (nameCol || contactCol) {
+            let txtValue = nameCol.textContent + contactCol.textContent;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

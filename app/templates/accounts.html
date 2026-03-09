@@ -1,77 +1,116 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Accounts - Banking System</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; margin-left: 1rem; }
-        .nav a:hover { background: rgba(255,255,255,0.2); }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .btn { padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
-        .btn:hover { background: #218838; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        tr:hover { background: #f8f9fa; }
-        .balance { font-weight: bold; color: #28a745; }
-        .empty-state { text-align: center; padding: 3rem; color: #666; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>💳 Accounts</h1>
-        <div class="nav">
-            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-            <a href="{{ url_for('main.customers') }}">Customers</a>
-            <a href="{{ url_for('main.branches') }}">Branches</a>
-            <a href="{{ url_for('main.logout') }}">Logout</a>
-        </div>
+{% extends "base.html" %}
+
+{% block title %}Accounts | NexusCore{% endblock %}
+{% block page_title %}Account Portfolio{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h5 class="text-muted mb-0">Total Active Accounts: <strong class="text-body">{{ accounts|length }}</strong></h5>
     </div>
-    
-    <div class="container">
-        <div class="page-header">
-            <h2>Account Management</h2>
-            <a href="#" class="btn" onclick="alert('Add account form coming soon!')">+ Add Account</a>
-        </div>
-        
-        {% if accounts %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Account No.</th>
-                        <th>Customer</th>
-                        <th>Balance</th>
-                        <th>Type</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for account in accounts %}
-                    <tr>
-                        <td><strong>{{ account.account_number }}</strong></td>
-                        <td>{{ account.customer.name }}</td>
-                        <td><span class="balance">₹{{ "%.2f"|format(account.balance) }}</span></td>
-                        <td>{{ account.account_type }}</td>
-                        <td>{{ account.created_at.strftime('%Y-%m-%d') }}</td>
-                        <td>
-                            <button onclick="alert('View: {{ account.account_number }}')" class="btn" style="background: #007bff; padding: 5px 10px; font-size: 12px;">View</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="empty-state">
-                <h3>💳 No accounts yet</h3>
-                <p>Create accounts for your customers!</p>
-                <a href="#" class="btn" onclick="alert('Add account form coming soon!')">+ Add First Account</a>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('main.add_account') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Open New Account</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for acc in accounts %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 position-relative border-0 shadow-sm account-card">
+            <!-- Decorative top banner -->
+            <div class="position-absolute top-0 start-0 w-100 rounded-top" style="height: 6px; background: linear-gradient(90deg, var(--bs-primary) 0%, var(--bs-info) 100%);"></div>
+            
+            <div class="card-body pt-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge bg-light text-dark border mb-2 px-2 py-1 user-select-all font-monospace" title="Click to copy account number"><i class="bi bi-hash"></i> {{ acc.account_number }}</span>
+                        <h5 class="fw-bold mb-0 text-truncate" style="max-width: 200px;">{{ acc.customer.name }}</h5>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="{{ url_for('main.transactions') }}?acc={{ acc.id }}"><i class="bi bi-list-columns-reverse me-2"></i> View statement</a></li>
+                            <li><button class="dropdown-item" onclick="generatePdf({{ acc.id }})"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Export PDF</button></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-lock me-2"></i> Freeze Card</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-4"><i class="bi bi-envelope"></i> {{ acc.customer.email }}</p>
+
+                <div class="bg-light bg-opacity-50 p-3 rounded mb-3">
+                    <p class="text-muted small mb-1 text-uppercase fw-semibold tracking-wide">Available Balance 
+                        {% if acc.account_type == 'savings' %}<span class="badge bg-success bg-opacity-10 text-success ms-2 border border-success border-opacity-25 rounded-pill">Savings</span>
+                        {% elif acc.account_type == 'business' %}<span class="badge bg-primary bg-opacity-10 text-primary ms-2 border border-primary border-opacity-25 rounded-pill">Corporate</span>
+                        {% else %}<span class="badge bg-info bg-opacity-10 text-info ms-2 border border-info border-opacity-25 rounded-pill">Checking</span>{% endif %}
+                    </p>
+                    <h2 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                        <span id="balance-{{ acc.id }}" class="balance-display transition-all">{{ acc.balance|round(2) }} {{ acc.currency }}</span>
+                        {% if acc.currency != 'USD' %}
+                            <i class="bi bi-globe fs-5 text-muted" title="Multi-currency asset"></i>
+                        {% endif %}
+                    </h2>
+                </div>
+                
+                <div class="d-flex justify-content-between text-muted small">
+                    <span>Opened: {{ acc.created_at.strftime('%m/%Y') }}</span>
+                    <span><i class="bi bi-shield-check text-success"></i> {{ acc.status|capitalize }}</span>
+                </div>
             </div>
-        {% endif %}
+            
+            <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                <a href="{{ url_for('main.transactions') }}" class="btn btn-sm btn-light w-100 text-primary fw-medium">Quick Transfer <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <h4 class="text-muted">No accounts currently active.</h4>
+        <a href="{{ url_for('main.add_account') }}" class="btn btn-primary mt-3">Open First Account</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for Async PDF Progress -->
+<div class="modal fade" id="pdfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content text-center py-4 border-0 shadow">
+            <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+            <h6 class="fw-bold">Generating Statement...</h6>
+            <p class="small text-muted mb-0">The Celery worker is rendering the PDF. This modal will auto-close.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const pdfModal = new bootstrap.Modal(document.getElementById('pdfModal'));
+    function generatePdf(accountId) {
+        pdfModal.show();
+        fetch(`/api/generate_report/${accountId}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                console.log("PDF Generation Task:", data);
+                // Simulate poll for completion
+                setTimeout(() => {
+                    pdfModal.hide();
+                    // In a real app we'd poll status or wait for WS message
+                    const toastMsg = `<div class="toast align-items-center text-bg-success border-0 show" role="alert">
+                      <div class="d-flex"><div class="toast-body">✅ Statement generated successfully!</div>
+                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+                    document.getElementById('toastPlacement').insertAdjacentHTML('beforeend', toastMsg);
+                }, 2000);
+            }).catch(err => {
+                pdfModal.hide();
+                alert("Error triggering report");
+            });
+    }
+</script>
+<style>
+    .account-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .account-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+    .balance-display { transition: color 0.3s ease, font-size 0.3s ease; }
+</style>
+{% endblock %}

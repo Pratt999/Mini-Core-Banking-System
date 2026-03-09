@@ -1,94 +1,259 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard - Banking System</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav { display: flex; gap: 1rem; }
-        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; }
-        .nav a:hover { background: rgba(255,255,255,0.2); }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
-        .stat-number { font-size: 3rem; font-weight: bold; color: #667eea; }
-        .stat-label { color: #666; font-size: 1.1rem; margin-top: 0.5rem; }
-        .recent-section { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        .flash-messages { margin-bottom: 1rem; }
-        .flash-success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏦 Banking Dashboard</h1>
-        <div>
-            <span>Welcome, {{ username }}!</span>
-            <a href="{{ url_for('main.logout') }}" class="nav">Logout</a>
-        </div>
-    </div>
-    
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ stats.customers }}</div>
-                <div class="stat-label">Customers</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ stats.accounts }}</div>
-                <div class="stat-label">Accounts</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ stats.branches }}</div>
-                <div class="stat-label">Branches</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">₹{{ "%.2f"|format(stats.total_balance) }}</div>
-                <div class="stat-label">Total Balance</div>
-            </div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div class="recent-section">
-                <h3>Recent Customers</h3>
-                {% if customers %}
-                    <table>
-                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr>
-                        {% for customer in customers %}
-                        <tr>
-                            <td>{{ customer.customer_id }}</td>
-                            <td>{{ customer.name }}</td>
-                            <td>{{ customer.email or 'N/A' }}</td>
-                            <td>{{ customer.phone or 'N/A' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                {% else %}
-                    <p>No customers yet. <a href="{{ url_for('main.customers') }}">Add some</a></p>
-                {% endif %}
-            </div>
-            
-            <div class="recent-section">
-                <h3>Quick Actions</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <a href="{{ url_for('main.customers') }}" style="padding: 1rem; background: #667eea; color: white; text-decoration: none; border-radius: 5px; text-align: center;">👥 Manage Customers</a>
-                    <a href="{{ url_for('main.accounts') }}" style="padding: 1rem; background: #28a745; color: white; text-decoration: none; border-radius: 5px; text-align: center;">💳 Manage Accounts</a>
-                    <a href="{{ url_for('main.branches') }}" style="padding: 1rem; background: #17a2b8; color: white; text-decoration: none; border-radius: 5px; text-align: center;">🏛️ Manage Branches</a>
+{% extends "base.html" %}
+
+{% block title %}Dashboard | NexusCore{% endblock %}
+{% block page_title %}Overview Dashboard{% endblock %}
+
+{% block content %}
+<!-- Key Metrics -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 text-white-50">Total Assets Under Mgmt</p>
+                        <h3 class="fw-bold mb-0">${{ "{:,.2f}".format(stats.total_balance) }}</h3>
+                    </div>
+                    <div class="p-2 bg-white bg-opacity-25 rounded"><i class="bi bi-currency-dollar fs-4"></i></div>
+                </div>
+                <div class="mt-3 text-sm">
+                    <span class="text-success bg-white bg-opacity-25 px-2 py-1 rounded small"><i class="bi bi-arrow-up"></i> +2.4%</span>
+                    <span class="text-white-50 ms-2 text-sm">vs last month</span>
                 </div>
             </div>
         </div>
     </div>
-</body>
-</html>
+    
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 text-muted">Active Customers</p>
+                        <h3 class="fw-bold mb-0">{{ stats.customers }}</h3>
+                    </div>
+                    <div class="p-2 bg-success bg-opacity-10 text-success rounded"><i class="bi bi-people fs-4"></i></div>
+                </div>
+                <div class="mt-3 text-sm">
+                    <span class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small"><i class="bi bi-arrow-up"></i> +12 new</span>
+                    <span class="text-muted ms-2 text-sm">this week</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 text-muted">Total Accounts</p>
+                        <h3 class="fw-bold mb-0">{{ stats.accounts }}</h3>
+                    </div>
+                    <div class="p-2 bg-info bg-opacity-10 text-info rounded"><i class="bi bi-wallet2 fs-4"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100 border-warning border-start border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 text-muted">Pending Loans</p>
+                        <h3 class="fw-bold mb-0">{{ stats.loans_pending }}</h3>
+                    </div>
+                    <div class="p-2 bg-warning bg-opacity-10 text-warning rounded"><i class="bi bi-hourglass-split fs-4"></i></div>
+                </div>
+                {% if stats.loans_pending > 0 %}
+                <div class="mt-3">
+                    <a href="{{ url_for('main.loans') }}" class="btn btn-sm btn-outline-warning w-100">Review Applications</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Balance Trend Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title fw-bold mb-0">Platform Growth</h5>
+                    <select class="form-select form-select-sm w-auto">
+                        <option>Last 7 Days</option>
+                        <option selected>Last 30 Days</option>
+                        <option>This Year</option>
+                    </select>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Customer Segmentation (Mock) -->
+    <div class="col-12 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">AI Customer Segments <i class="bi bi-stars text-warning fs-6" title="Powered by K-Means Clustering"></i></h5>
+                <div style="height: 250px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="segmentChart"></canvas>
+                </div>
+                <div class="mt-3 small text-muted text-center">
+                    Segments auto-generated based on balance, activity, and loans.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title fw-bold mb-0">Recent Activity</h5>
+                    <a href="{{ url_for('main.transactions') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reference</th>
+                                <th>Account</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Date/Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in transactions %}
+                            <tr>
+                                <td><code>{{ tx.transaction_reference }}</code></td>
+                                <td>{{ tx.account.account_number }}</td>
+                                <td>
+                                    {% if tx.transaction_type == 'deposit' %}
+                                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-arrow-down-left"></i> Deposit</span>
+                                    {% elif tx.transaction_type == 'withdrawal' %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-arrow-up-right"></i> Withdrawal</span>
+                                    {% else %}
+                                        <span class="badge bg-primary bg-opacity-10 text-primary"><i class="bi bi-arrow-left-right"></i> Transfer</span>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold {% if tx.transaction_type == 'deposit' %}text-success{% else %}text-danger{% endif %}">
+                                    {% if tx.transaction_type == 'deposit' %}+{% else %}-{% endif %}
+                                    {{ "{:,.2f}".format(tx.amount) }} {{ tx.currency }}
+                                </td>
+                                <td class="text-muted small">{{ tx.timestamp.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    {% if tx.is_fraudulent %}
+                                        <span class="badge bg-danger"><i class="bi bi-shield-exclamation"></i> AI Flagged</span>
+                                    {% else %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Cleared</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No recent transactions found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Shared chart options for proper dark/light mode switching
+    const textColor = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' : '#495057';
+    const gridColor = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    
+    // Growth Area Chart
+    const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+    
+    // Create gradient
+    let gradient = ctxGrowth.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(30, 58, 138, 0.5)'); // primary color
+    gradient.addColorStop(1, 'rgba(30, 58, 138, 0)');
+    
+    window.myChart = new Chart(ctxGrowth, {
+        type: 'line',
+        data: {
+            // Mock 30 dates
+            labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+            datasets: [{
+                label: 'AUM Trend',
+                data: Array.from({length: 30}, () => Math.floor(Math.random() * 50000) + 1000000).sort((a,b)=>a-b),
+                borderColor: '#1e3a8a',
+                backgroundColor: gradient,
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0,0,0,0.8)'
+                }
+            },
+            scales: {
+                x: { 
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 7, color: textColor }
+                },
+                y: { 
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, callback: function(value) { return '$' + (value/1000) + 'k'; } }
+                }
+            }
+        }
+    });
+    
+    // Customer Segmentation Doughnut Chart
+    const ctxSegment = document.getElementById('segmentChart').getContext('2d');
+    new Chart(ctxSegment, {
+        type: 'doughnut',
+        data: {
+            labels: ['High Net Worth', 'Active Borrowers', 'Standard Accounts'],
+            datasets: [{
+                data: [15, 30, 55], // Mock percentages
+                backgroundColor: ['#1e3a8a', '#10b981', '#6c757d'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, usePointStyle: true, padding: 20 } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

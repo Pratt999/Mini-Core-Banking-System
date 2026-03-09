@@ -1,10 +1,16 @@
-from app import create_app
-from app.auth import create_default_admin
-from app.models import db
+from app import create_app, socketio, db
 
 app = create_app()
 
-if __name__ == '__main__':
+@app.cli.command("init-db")
+def init_db():
+    """Clear existing data and create new tables."""
+    from app.auth import create_default_admin
     with app.app_context():
+        db.create_all()
         create_default_admin()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+        print("Initialized the database.")
+
+if __name__ == '__main__':
+    # Use SocketIO run instead of app.run for WebSocket support
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

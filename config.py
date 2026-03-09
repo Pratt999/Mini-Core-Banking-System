@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-prod'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret-enterprise-key'
     
     # PostgreSQL connection
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@" \
+        f"postgresql://{os.environ.get('DB_USER', 'admin')}:{os.environ.get('DB_PASSWORD', 'admin123')}@" \
         f"{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', 5432)}/" \
         f"{os.environ.get('DB_NAME', 'core_banking')}"
     
@@ -16,11 +16,16 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
+        "isolation_level": "REPEATABLE READ"
     }
     
-    # Transaction isolation level (SERIALIZABLE for max safety)
-    SQLALCHEMY_ENGINE_OPTIONS['isolation_level'] = 'REPEATABLE READ'
-    
     # App settings
-    ADMIN_USERNAME = 'admin'
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+
+    # JWT Settings
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-prod'
+
+    # Celery settings
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL') or 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND') or 'redis://localhost:6379/1'

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Open Account | NexusCore{% endblock %}
+{% block page_title %}Provision Account{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <a href="{{ url_for('main.accounts') }}" class="btn btn-link text-decoration-none text-muted mb-3 px-0">
+            <i class="bi bi-arrow-left"></i> Back to Accounts
+        </a>
+        
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                        <i class="bi bi-safe fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Open New Treasury / Depository Account</h4>
+                        <p class="text-muted mb-0 small">Provisioning new liquidity vehicle for existing client profile.</p>
+                    </div>
+                </div>
+
+                <hr class="mb-4">
+
+                <form method="POST" action="{{ url_for('main.add_account') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-4">
+                        {{ form.customer_id.label(class="form-label fw-bold text-primary") }}
+                        {{ form.customer_id(class="form-select form-select-lg border-primary shadow-sm") }}
+                        <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Don't see the client? <a href="{{ url_for('main.add_customer') }}">Register them first</a>.</div>
+                        {% if form.customer_id.errors %}<div class="text-danger small mt-1">{{ form.customer_id.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            {{ form.account_type.label(class="form-label fw-bold") }}
+                            {{ form.account_type(class="form-select text-body") }}
+                            {% if form.account_type.errors %}<div class="text-danger small mt-1">{{ form.account_type.errors[0] }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.currency.label(class="form-label fw-bold") }}
+                            {{ form.currency(class="form-select text-body") }}
+                            {% if form.currency.errors %}<div class="text-danger small mt-1">{{ form.currency.errors[0] }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-5 p-4 bg-light rounded border border-success border-opacity-25 relative overflow-hidden">
+                        <div class="position-absolute end-0 top-0 bottom-0 opacity-10 pe-3 d-flex align-items-center" style="pointer-events: none;">
+                            <i class="bi bi-cash-stack" style="font-size: 5rem;"></i>
+                        </div>
+                        
+                        {{ form.initial_deposit.label(class="form-label fw-bold text-success") }}
+                        <div class="input-group input-group-lg w-75">
+                            <span class="input-group-text bg-white border-success border-opacity-50 text-success"><i class="bi bi-plus-lg"></i></span>
+                            {{ form.initial_deposit(class="form-control border-success border-opacity-50 text-body fw-bold", type="number", step="0.01") }}
+                        </div>
+                        <div class="form-text mt-2">Initial funding will be logged as the genesis deposit transaction.</div>
+                        {% if form.initial_deposit.errors %}<div class="text-danger small mt-1">{{ form.initial_deposit.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                            <i class="bi bi-check2-circle me-2"></i> Provision Account Instance
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

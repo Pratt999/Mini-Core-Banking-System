@@ -1,58 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Banking System - Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo h1 { color: #333; font-size: 2rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; color: #555; font-weight: 500; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
-        input:focus { outline: none; border-color: #667eea; }
-        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: transform 0.2s; }
-        button:hover { transform: translateY(-2px); }
-        .flash-messages { margin-bottom: 1rem; }
-        .flash-success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; }
-        .flash-error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; }
-        .credentials { background: #e9ecef; padding: 1rem; border-radius: 5px; margin-top: 1rem; text-align: center; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>🏦 Banking System</h1>
-            <p>VIT Chennai Project</p>
-        </div>
+{% extends "base.html" %}
+
+{% block title %}Login | NexusCore Banking{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-12 col-md-8 col-lg-5 col-xl-4">
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="flash-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
-                    {% endfor %}
+        <div class="text-center mb-4 animate-pop">
+            <i class="bi bi-bank2 text-primary" style="font-size: 3rem;"></i>
+            <h2 class="fw-bold mt-2">NexusCore<span class="text-primary">Banking</span></h2>
+            <p class="text-muted">Enterprise Banking Administration</p>
+        </div>
+
+        <div class="card shadow-lg animate-pop">
+            <div class="card-body p-5">
+                <h4 class="card-title text-center mb-4 fw-bold">Sign In</h4>
+                
+                <form method="POST" action="{{ url_for('main.login') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.username(class="form-control", id="username", placeholder="Username") }}
+                        {{ form.username.label(for="username") }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-floating mb-4">
+                        {{ form.password(class="form-control", id="password", placeholder="Password") }}
+                        {{ form.password.label(for="password") }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg fw-bold shadow-sm") }}
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-lock-fill text-success"></i> Secure 256-bit Encrypted Connection
+                    </small><br/>
+                    <small class="text-muted">Default: admin / admin123</small>
                 </div>
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST">
-            <div class="form-group">
-                <label>Username:</label>
-                <input type="text" name="username" required>
             </div>
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        
-        <div class="credentials">
-            <strong>Demo: admin / admin123</strong>
         </div>
+        
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

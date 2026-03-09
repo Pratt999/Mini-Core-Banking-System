@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}System Health | NexusCore{% endblock %}
+{% block page_title %}Admin Control Center{% endblock %}
+
+{% block content %}
+<div class="row mb-4 g-4">
+    <!-- Server Status -->
+    <div class="col-12 col-md-4">
+        <div class="card h-100 border-success border-start border-4">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-3 text-muted">Core Engine Status</h6>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="spinner-grow text-success spinner-grow-sm me-2" role="status"></div>
+                    <h3 class="fw-bold mb-0 text-success">OPERATIONAL</h3>
+                </div>
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Database PostGres</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Redis Cache</span>
+                        <span class="badge bg-success">Connected</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Celery Worker</span>
+                        <span class="badge bg-success">Idle / Ready</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">WebSocket Bridge</span>
+                        <span class="badge bg-success">Eventlet Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DB Backups -->
+    <div class="col-12 col-md-4">
+         <div class="card h-100 bg-primary text-white">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <i class="bi bi-database-down fs-1 mb-3"></i>
+                <h5 class="fw-bold">Database Snapshot</h5>
+                <p class="small text-white-50">Generate a complete pg_dump archive for cold storage compliance.</p>
+                <button class="btn btn-light text-primary fw-bold mt-auto" onclick="alert('In production, this triggers a Celery task returning a secure download link via AWS S3.')">Initiate Backup</button>
+            </div>
+         </div>
+    </div>
+
+    <!-- Import / Export Tools -->
+    <div class="col-12 col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <i class="bi bi-file-earmark-spreadsheet fs-1 text-info mb-3"></i>
+                <h5 class="fw-bold">Bulk Migrate</h5>
+                <p class="small text-muted">Import JSON/CSV ledgers from legacy banking systems (ISO 20022).</p>
+                <div class="btn-group mt-auto w-100">
+                    <button class="btn btn-outline-primary btn-sm">Upload CSV</button>
+                    <button class="btn btn-outline-secondary btn-sm">Export All DB</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Timeline Log -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-transparent border-0 pt-4 pb-2">
+        <h5 class="fw-bold mb-0"><i class="bi bi-shield-lock text-primary me-2"></i> Security & Audit Timeline</h5>
+        <p class="text-muted small">Immutable log of system changes for compliance auditing.</p>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush border-top">
+            {% for log in logs %}
+            <div class="list-group-item py-3 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 fw-bold text-body font-monospace">{{ log.action }}</h6>
+                    <small class="text-muted">
+                        {% if log.user_type == 'admin' %}
+                            <i class="bi bi-person-badge text-primary me-1 text-sm"></i> Admin | 
+                        {% else %}
+                            <i class="bi bi-person text-secondary me-1 text-sm"></i> System | 
+                        {% endif %}
+                        {{ log.details or "No additional context." }}
+                    </small>
+                </div>
+                <div class="text-end">
+                    <div class="small fw-semibold text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                    <code class="small bg-light px-1 rounded">{{ log.ip_address }}</code>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-5 text-center text-muted">No audit logs found.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
