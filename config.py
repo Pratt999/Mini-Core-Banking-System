@@ -7,7 +7,11 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret-enterprise-key'
     
     # PostgreSQL connection
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    _db_url = os.environ.get('DATABASE_URL')
+    if _db_url and _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+        
+    SQLALCHEMY_DATABASE_URI = _db_url or \
         f"postgresql://{os.environ.get('DB_USER', 'admin')}:{os.environ.get('DB_PASSWORD', 'admin123')}@" \
         f"{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', 5432)}/" \
         f"{os.environ.get('DB_NAME', 'core_banking')}"
