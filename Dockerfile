@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -24,8 +25,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . .
 
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Expose port
 EXPOSE 5000
 
-# Start server using Gunicorn with eventlet for WebSocket support
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "run:app"]
+# Start supervisor to manage Gunicorn and Celery
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
