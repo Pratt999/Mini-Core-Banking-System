@@ -114,6 +114,45 @@ def add_customer():
             
     return render_template('add_customer.html', form=form)
 
+@main_bp.route('/customer/edit/<int:customer_id>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin', 'manager')
+def edit_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    form = CustomerForm(obj=customer)
+    if form.validate_on_submit():
+        try:
+            customer.name = form.name.data
+            customer.email = form.email.data
+            customer.phone = form.phone.data
+            customer.address = form.address.data
+            db.session.commit()
+            log_audit('CUSTOMER_UPDATED', f"ID: {customer.customer_id}")
+            flash(f'✅ Customer "{customer.name}" updated successfully!', 'success')
+            return redirect(url_for('main.customers'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'❌ Error updating customer: {str(e)}', 'danger')
+            
+    return render_template('edit_customer.html', form=form, customer=customer)
+
+@main_bp.route('/customer/delete/<int:customer_id>', methods=['POST'])
+@login_required
+@role_required('admin')
+def delete_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    name = customer.name
+    try:
+        db.session.delete(customer)
+        db.session.commit()
+        log_audit('CUSTOMER_DELETED', f"ID: {customer_id}")
+        flash(f'✅ Customer "{name}" and all associated accounts have been removed.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'❌ Error deleting customer: {str(e)}', 'danger')
+        
+    return redirect(url_for('main.customers'))
+
 # --- Accounts ---
 @main_bp.route('/accounts')
 @login_required

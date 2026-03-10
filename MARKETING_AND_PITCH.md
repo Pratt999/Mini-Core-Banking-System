@@ -1,4 +1,4 @@
-py# 🌟 NexusCore Banking: Go-To-Market Materials
+🌟 NexusCore Banking: Go-To-Market Materials
 
 This document contains all the materials needed to pitch, demo, and showcase your enterprise banking system to investors, GitHub, and university faculty.
 

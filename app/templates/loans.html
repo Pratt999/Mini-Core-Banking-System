@@ -17,30 +17,23 @@
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         <label class="form-label text-white fw-semibold small">Client Profile / ID</label>
-                        {{ form.customer_id(class="form-select bg-white bg-opacity-25 text-white border-0") }}
+                        {{ form.customer_id(class="form-select bg-white bg-opacity-10 text-white border-0 shadow-sm") }}
                     </div>
                     <div class="row g-2 mb-4">
-                        <div class="col-6">
+                        <div class="col-7">
                             <label class="form-label text-white fw-semibold small">Facility Amount</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white bg-opacity-25 text-white border-0">$</span>
-                                {{ form.amount(class="form-control bg-white bg-opacity-25 text-white border-0 text-white placeholder-white", type="number") }}
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white bg-opacity-10 text-white border-0">$</span>
+                                {{ form.amount(class="form-control bg-white bg-opacity-10 text-white border-0 text-white placeholder-white", type="number", placeholder="0.00") }}
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-5">
                             <label class="form-label text-white fw-semibold small">Term</label>
-                            {{ form.tenure(class="form-select bg-white bg-opacity-25 text-white border-0") }}
+                            {{ form.tenure(class="form-select bg-white bg-opacity-10 text-white border-0 shadow-sm") }}
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-light text-primary w-100 fw-bold py-2"><i class="bi bi-file-earmark-check"></i> Evaluate Application</button>
+                    <button type="submit" class="btn btn-light text-primary w-100 fw-bold py-3 shadow border-0 transition-all hover-lift"><i class="bi bi-file-earmark-check"></i> Evaluate Application</button>
                 </form>
-            </div>
-            
-            <!-- Abstract background shape -->
-            <div class="position-absolute end-0 bottom-0 opacity-10" style="pointer-events: none;">
-                <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#FFFFFF" d="M42.7,-68.8C55.5,-59.4,66,-46.8,74.5,-32.1C82.9,-17.4,89.4,-0.6,86.6,14.6C83.8,29.9,71.8,43.5,58.7,54.4C45.6,65.2,31.4,73.1,16,77.2C0.6,81.4,-15.9,81.7,-31.2,76.5C-46.4,71.3,-60.3,60.6,-70.7,46.8C-81,33,-87.8,16.5,-88.7,-0.4C-89.6,-17.3,-84.7,-34.7,-74.6,-48.5C-64.4,-62.3,-49,-72.6,-33.5,-80.1C-18,-87.6,-2.4,-92.3,12.5,-86.3C27.4,-80.4,45.2,-79.8,42.7,-68.8Z" transform="translate(100 100) scale(1.1)" />
-                </svg>
             </div>
         </div>
     </div>
@@ -75,7 +68,7 @@
                                             <small class="text-muted font-monospace">{{ loan.loan_reference }}</small>
                                         </td>
                                         <td class="text-end">
-                                            <h6 class="mb-0 fw-bold text-dark">${{ "{:,.2f}".format(loan.loan_amount) }}</h6>
+                                            <h6 class="mb-0 fw-bold">${{ "{:,.2f}".format(loan.loan_amount) }}</h6>
                                             <small class="text-muted">{{ loan.tenure_months }} Mo @ {{ loan.interest_rate }}% APY</small>
                                         </td>
                                         <td class="text-end">
