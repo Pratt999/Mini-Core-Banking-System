@@ -3,7 +3,7 @@ services:
   - type: web
     name: nexus-banking
     runtime: docker
-    plan: free # Change to a larger plan if needed
+    plan: free
     envVars:
       - key: FLASK_APP
         value: run.py
@@ -23,10 +23,7 @@ services:
           type: redis
           name: nexus-redis
           property: connectionString
-      - key: SECRET_KEY
-        generateValue: true
-      - key: JWT_SECRET_KEY
-        generateValue: true
+      - fromGroup: nexus-secrets
 
   # Celery Worker service
   - type: worker
@@ -49,11 +46,7 @@ services:
           type: redis
           name: nexus-redis
           property: connectionString
-      - key: SECRET_KEY
-        fromService:
-          type: web
-          name: nexus-banking
-          property: envVar:SECRET_KEY
+      - fromGroup: nexus-secrets
 
   # Redis instance
   - type: redis
@@ -64,3 +57,11 @@ services:
 databases:
   - name: nexus-db
     plan: free
+
+envVarGroups:
+  - name: nexus-secrets
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
