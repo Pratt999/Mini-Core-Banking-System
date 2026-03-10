@@ -1,0 +1,66 @@
+services:
+  # Web service for the Flask app
+  - type: web
+    name: nexus-banking
+    runtime: docker
+    plan: free # Change to a larger plan if needed
+    envVars:
+      - key: FLASK_APP
+        value: run.py
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexus-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+
+  # Celery Worker service
+  - type: worker
+    name: nexus-worker
+    runtime: docker
+    dockerCommand: celery -A app.celery.celery worker --loglevel=info
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexus-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: SECRET_KEY
+        fromService:
+          type: web
+          name: nexus-banking
+          property: envVar:SECRET_KEY
+
+  # Redis instance
+  - type: redis
+    name: nexus-redis
+    plan: free
+    ipAllowList: [] # Only allow internal connections
+
+databases:
+  - name: nexus-db
+    plan: free
