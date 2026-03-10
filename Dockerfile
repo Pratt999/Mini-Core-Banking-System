@@ -28,8 +28,12 @@ COPY . .
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Copy and setup entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Expose port
 EXPOSE 5000
 
-# Start supervisor to manage Gunicorn and Celery
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start via entrypoint script
+CMD ["/app/entrypoint.sh"]
